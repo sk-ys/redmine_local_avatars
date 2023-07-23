@@ -28,10 +28,8 @@ end
 
 # Caution: Reloader is not supported in development mode for Redmine 4 or lower
 
-helper_klass = ApplicationHelper.method_defined?(:avatar) ? ApplicationHelper : AvatarsHelper
-
 AccountController.send(:include,  RedmineLocalAvatars::Patches::AccountControllerPatch)
-helper_klass.send(:include,  RedmineLocalAvatars::Patches::ApplicationHelperAvatarPatch)
+RedmineLocalAvatars::Patches::ApplicationHelperAvatarPatch.apply
 MyController.send(:include,  RedmineLocalAvatars::Patches::MyControllerPatch)
 User.send(:include,  RedmineLocalAvatars::Patches::UsersAvatarPatch)
 UsersController.send(:include,  RedmineLocalAvatars::Patches::UsersControllerPatch)

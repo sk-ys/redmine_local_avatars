@@ -21,14 +21,11 @@ require File.expand_path('../../local_avatars', __FILE__)
 module RedmineLocalAvatars
   module Patches
     module ApplicationHelperAvatarPatch
-      def self.included(base) # :nodoc:    
-        base.class_eval do
-          alias_method :avatar_without_local, :avatar
-          alias_method :avatar, :avatar_with_local
-        end
+      def self.apply
+        ApplicationController.send :helper, RedmineLocalAvatars::Patches::ApplicationHelperAvatarPatch
       end
 
-      def avatar_with_local(user, options = { })
+      def avatar(user, options = { })
         if user.is_a?(User)then
           av = user.attachments.find_by_description 'avatar'
           if av then
@@ -38,7 +35,20 @@ module RedmineLocalAvatars
             return "<img class=\"gravatar\" title=\"#{title}\" width=\"#{options[:size]}\" height=\"#{options[:size]}\" src=\"#{image_url}\" />".html_safe
           end
         end
-        avatar_without_local(user, options)
+        if Setting.gravatar_enabled?
+          super(user, options)
+        else
+          if user.is_a?(Group)
+            group_avatar(options)
+          else
+            anonymous_avatar(options)
+          end
+        end
+      end
+
+      def body_css_classes
+        # force avators-on
+        super.gsub(/avatars-off/, 'avatars-on')
       end
     end
   end
