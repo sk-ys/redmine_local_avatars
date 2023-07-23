@@ -26,31 +26,26 @@ Redmine::Plugin.register :redmine_local_avatars do
   version '1.0.6'
 end
 
-receiver = Object.const_defined?('ActiveSupport::Reloader') ?  ActiveSupport::Reloader : ActionDispatch::Callbacks
-receiver.to_prepare  do
-  require_dependency 'project'
-  require_dependency 'principal'
-  require_dependency 'user'
+# Caution: Reloader is not supported in development mode for Redmine 4 or lower
 
-  helper_klass = ApplicationHelper.method_defined?(:avatar) ? ApplicationHelper : AvatarsHelper
+helper_klass = ApplicationHelper.method_defined?(:avatar) ? ApplicationHelper : AvatarsHelper
 
-  AccountController.send(:include,  LocalAvatarsPlugin::AccountControllerPatch)
-  helper_klass.send(:include,  LocalAvatarsPlugin::ApplicationAvatarPatch)
-  MyController.send(:include,  LocalAvatarsPlugin::MyControllerPatch)
-  User.send(:include,  LocalAvatarsPlugin::UsersAvatarPatch)
-  UsersController.send(:include,  LocalAvatarsPlugin::UsersControllerPatch)
-  UsersHelper.send(:include,  LocalAvatarsPlugin::UsersHelperPatch)
-end
+AccountController.send(:include,  RedmineLocalAvatars::Patches::AccountControllerPatch)
+helper_klass.send(:include,  RedmineLocalAvatars::Patches::ApplicationHelperAvatarPatch)
+MyController.send(:include,  RedmineLocalAvatars::Patches::MyControllerPatch)
+User.send(:include,  RedmineLocalAvatars::Patches::UsersAvatarPatch)
+UsersController.send(:include,  RedmineLocalAvatars::Patches::UsersControllerPatch)
+UsersHelper.send(:include,  RedmineLocalAvatars::Patches::UsersHelperAvatarPatch)
 
-require 'local_avatars'
+require File.expand_path('../lib/redmine_local_avatars/local_avatars', __FILE__)
 
 # patches to Redmine
-require "account_controller_patch.rb"
-require "application_helper_avatar_patch.rb"
-require "my_controller_patch.rb"
-require "users_avatar_patch.rb"   # User model
-require "users_controller_patch.rb"
-require "users_helper_avatar_patch.rb"  # UsersHelper
+require File.expand_path('../lib/redmine_local_avatars/patches/account_controller_patch.rb', __FILE__)
+require File.expand_path('../lib/redmine_local_avatars/patches/application_helper_avatar_patch.rb', __FILE__)
+require File.expand_path('../lib/redmine_local_avatars/patches/my_controller_patch.rb', __FILE__)
+require File.expand_path('../lib/redmine_local_avatars/patches/users_avatar_patch.rb', __FILE__)   # User model
+require File.expand_path('../lib/redmine_local_avatars/patches/users_controller_patch.rb', __FILE__)
+require File.expand_path('../lib/redmine_local_avatars/patches/users_helper_avatar_patch.rb', __FILE__)  # UsersHelper
 
 # hooks
-require 'redmine_local_avatars/hooks'
+require File.expand_path('../lib/redmine_local_avatars/hooks', __FILE__)
