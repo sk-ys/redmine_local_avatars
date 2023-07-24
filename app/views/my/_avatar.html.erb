@@ -1,13 +1,41 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'local_avatars', plugin: "redmine_local_avatars" %>
+<% end %>
+
 <div class="box">
 <h2><%= l(:label_avatar)%></h2>
-<div style="width: 128px; height: 128px; border: 1px silver solid;">
+<div style="width: 128px; height: 128px; border: 1px silver solid; position: relative;">
 <%= avatar(@user, :size => "128") %>
+<div id="avatar_preview_message" style="display: none;"><span><%= l(:label_preview) %></span></div>
 </div><br>
 <%= form_tag( { :action => 'save_avatar', :id => @user.id }, :multipart => true) do %>
     <%= file_field_tag "avatar" %><br />
     <%= submit_tag l(:button_save) %>
-		<%= submit_tag l(:button_delete), :confirm => l(:are_you_sure_delete_avatar) %>
+		<%= submit_tag l(:button_delete), :confirm => l(:are_you_sure_delete_avatar), class: 'delete' %>
 <% end %>
+<script>
+$(() => {
+  $("#avatar").change(function () {
+    console.log("changed")
+    const fileInput = this;
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      
+      // Show preview when file loading is complete
+      reader.onload = function(e) {
+        $("#avatar_preview_message").show();
+        $("#content > .box > div > img.gravatar:first").attr("src", e.target.result);
+      };
+      
+      // Start reading file
+      reader.readAsDataURL(fileInput.files[0]);
+
+      // Disable delete button
+      $("input.delete").prop("disabled", true);
+    }
+  });
+});
+</script>
 </div>
 
 <% html_title(l(:label_avatar)) -%>

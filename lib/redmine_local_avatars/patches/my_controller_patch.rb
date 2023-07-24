@@ -36,6 +36,12 @@ module RedmineLocalAvatars
 
       def save_avatar
         @user = User.current
+        
+        if params[:commit] == l(:button_cancel) then
+          redirect_to :action => 'account', :id => @user
+          return
+        end
+
         begin
           save_or_delete # see the LocalAvatars module
           redirect_to :action => 'account', :id => @user
