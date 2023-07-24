@@ -13,6 +13,7 @@
     <%= submit_tag l(:button_save) %>
 		<%= submit_tag l(:button_delete), :confirm => l(:are_you_sure_delete_avatar), class: 'delete' %>
 <% end %>
+<%= link_to(l(:button_cancel), controller: 'my', action: 'account') %>
 <script>
 $(() => {
   $("#avatar").change(function () {
